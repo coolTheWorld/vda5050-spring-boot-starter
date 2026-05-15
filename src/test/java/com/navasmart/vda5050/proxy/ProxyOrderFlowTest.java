@@ -6,7 +6,6 @@ import com.navasmart.vda5050.autoconfigure.Vda5050Properties;
 import com.navasmart.vda5050.autoconfigure.Vda5050ProxyAutoConfiguration;
 import com.navasmart.vda5050.error.ErrorAggregator;
 import com.navasmart.vda5050.model.*;
-import com.navasmart.vda5050.model.Order;
 import com.navasmart.vda5050.model.enums.BlockingType;
 import com.navasmart.vda5050.mqtt.MqttGateway;
 import com.navasmart.vda5050.mqtt.MqttInboundRouter;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -223,7 +221,7 @@ class ProxyOrderFlowTest {
         cancelAction.setActionId("cancel-" + UUID.randomUUID());
         cancelAction.setActionType("cancelOrder");
         cancelAction.setBlockingType(BlockingType.NONE.getValue());
-        instantActions.setInstantActions(Collections.singletonList(cancelAction));
+        instantActions.setActions(Collections.singletonList(cancelAction));
 
         byte[] iaPayload = objectMapper.writeValueAsBytes(instantActions);
         testClient.publish(TOPIC_PREFIX + "/instantActions", new MqttMessage(iaPayload));
@@ -252,7 +250,7 @@ class ProxyOrderFlowTest {
         pauseAction.setActionId("pause-" + UUID.randomUUID());
         pauseAction.setActionType("startPause");
         pauseAction.setBlockingType(BlockingType.NONE.getValue());
-        pauseActions.setInstantActions(Collections.singletonList(pauseAction));
+        pauseActions.setActions(Collections.singletonList(pauseAction));
 
         byte[] pausePayload = objectMapper.writeValueAsBytes(pauseActions);
         testClient.publish(TOPIC_PREFIX + "/instantActions", new MqttMessage(pausePayload));
@@ -272,7 +270,7 @@ class ProxyOrderFlowTest {
         resumeAction.setActionId("resume-" + UUID.randomUUID());
         resumeAction.setActionType("stopPause");
         resumeAction.setBlockingType(BlockingType.NONE.getValue());
-        resumeActions.setInstantActions(Collections.singletonList(resumeAction));
+        resumeActions.setActions(Collections.singletonList(resumeAction));
 
         byte[] resumePayload = objectMapper.writeValueAsBytes(resumeActions);
         testClient.publish(TOPIC_PREFIX + "/instantActions", new MqttMessage(resumePayload));

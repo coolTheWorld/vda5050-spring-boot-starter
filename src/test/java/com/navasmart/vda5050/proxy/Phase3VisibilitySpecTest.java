@@ -1,29 +1,19 @@
 package com.navasmart.vda5050.proxy;
 
+import com.navasmart.vda5050.autoconfigure.Vda5050Properties;
 import com.navasmart.vda5050.error.ErrorAggregator;
 import com.navasmart.vda5050.error.Vda5050ErrorFactory;
-import com.navasmart.vda5050.model.Action;
-import com.navasmart.vda5050.model.ActionState;
-import com.navasmart.vda5050.model.Factsheet;
-import com.navasmart.vda5050.model.InstantActions;
-import com.navasmart.vda5050.model.Node;
-import com.navasmart.vda5050.model.Order;
+import com.navasmart.vda5050.model.*;
 import com.navasmart.vda5050.model.enums.ActionStatus;
 import com.navasmart.vda5050.model.enums.BlockingType;
 import com.navasmart.vda5050.mqtt.MqttGateway;
-import com.navasmart.vda5050.proxy.callback.Vda5050ProxyStateProvider;
-import com.navasmart.vda5050.proxy.callback.Vda5050ProxyVehicleAdapter;
-import com.navasmart.vda5050.proxy.callback.ActionResult;
-import com.navasmart.vda5050.proxy.callback.NavigationResult;
-import com.navasmart.vda5050.proxy.callback.VehicleStatus;
+import com.navasmart.vda5050.proxy.callback.*;
 import com.navasmart.vda5050.proxy.statemachine.ProxyClientState;
 import com.navasmart.vda5050.proxy.statemachine.ProxyOrderStateMachine;
 import com.navasmart.vda5050.proxy.validation.OrderValidator;
 import com.navasmart.vda5050.server.dispatch.InstantActionSender;
 import com.navasmart.vda5050.vehicle.VehicleContext;
-import com.navasmart.vda5050.autoconfigure.Vda5050Properties;
 import com.navasmart.vda5050.vehicle.VehicleRegistry;
-import com.navasmart.vda5050.server.callback.SendResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,9 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -119,15 +107,15 @@ class Phase3VisibilitySpecTest {
 
         sender.cancelOrder("TestCo:AGV001");
 
-        ArgumentCaptor<com.navasmart.vda5050.model.InstantActions> captor =
-                ArgumentCaptor.forClass(com.navasmart.vda5050.model.InstantActions.class);
+        ArgumentCaptor<InstantActions> captor =
+                ArgumentCaptor.forClass(InstantActions.class);
         verify(mqttGateway).publishInstantActions(eq("TestCo"), eq("AGV001"), captor.capture());
 
-        com.navasmart.vda5050.model.InstantActions sent = captor.getValue();
-        assertThat(sent.getInstantActions()).hasSize(1);
-        assertThat(sent.getInstantActions().get(0).getBlockingType())
+        InstantActions sent = captor.getValue();
+        assertThat(sent.getActions()).hasSize(1);
+        assertThat(sent.getActions().get(0).getBlockingType())
                 .isEqualTo(BlockingType.HARD.getValue());
-        assertThat(sent.getInstantActions().get(0).getActionType())
+        assertThat(sent.getActions().get(0).getActionType())
                 .isEqualTo("cancelOrder");
     }
 
@@ -141,11 +129,11 @@ class Phase3VisibilitySpecTest {
 
         sender.pauseVehicle("TestCo:AGV001");
 
-        ArgumentCaptor<com.navasmart.vda5050.model.InstantActions> captor =
-                ArgumentCaptor.forClass(com.navasmart.vda5050.model.InstantActions.class);
+        ArgumentCaptor<InstantActions> captor =
+                ArgumentCaptor.forClass(InstantActions.class);
         verify(mqttGateway).publishInstantActions(eq("TestCo"), eq("AGV001"), captor.capture());
 
-        assertThat(captor.getValue().getInstantActions().get(0).getBlockingType())
+        assertThat(captor.getValue().getActions().get(0).getBlockingType())
                 .isEqualTo(BlockingType.NONE.getValue());
     }
 
@@ -172,7 +160,7 @@ class Phase3VisibilitySpecTest {
         cancelAction.setActionId("cancel-1");
         cancelAction.setActionType("cancelOrder");
         cancelAction.setBlockingType(BlockingType.HARD.getValue());
-        cancelMsg.setInstantActions(List.of(cancelAction));
+        cancelMsg.setActions(List.of(cancelAction));
 
         stateMachine.receiveInstantActions(ctx, cancelMsg);
 
@@ -202,7 +190,7 @@ class Phase3VisibilitySpecTest {
         cancelAction.setActionId("cancel-1");
         cancelAction.setActionType("cancelOrder");
         cancelAction.setBlockingType(BlockingType.HARD.getValue());
-        cancelMsg.setInstantActions(List.of(cancelAction));
+        cancelMsg.setActions(List.of(cancelAction));
 
         stateMachine.receiveInstantActions(ctx, cancelMsg);
 
@@ -265,7 +253,7 @@ class Phase3VisibilitySpecTest {
         fsAction.setActionId("fs-1");
         fsAction.setActionType("factsheetRequest");
         fsAction.setBlockingType(BlockingType.NONE.getValue());
-        msg.setInstantActions(List.of(fsAction));
+        msg.setActions(List.of(fsAction));
 
         sm.receiveInstantActions(ctx, msg);
 
@@ -309,7 +297,7 @@ class Phase3VisibilitySpecTest {
         fsAction.setActionId("fs-2");
         fsAction.setActionType("factsheetRequest");
         fsAction.setBlockingType(BlockingType.NONE.getValue());
-        msg.setInstantActions(List.of(fsAction));
+        msg.setActions(List.of(fsAction));
 
         sm.receiveInstantActions(ctx, msg);
 
@@ -325,7 +313,7 @@ class Phase3VisibilitySpecTest {
         fsAction.setActionId("fs-1");
         fsAction.setActionType("factsheetRequest");
         fsAction.setBlockingType(BlockingType.NONE.getValue());
-        msg.setInstantActions(List.of(fsAction));
+        msg.setActions(List.of(fsAction));
 
         stateMachine.receiveInstantActions(ctx, msg);
 
@@ -395,7 +383,7 @@ class Phase3VisibilitySpecTest {
         cancelAction.setActionId("cancel-1");
         cancelAction.setActionType("cancelOrder");
         cancelAction.setBlockingType(BlockingType.HARD.getValue());
-        cancelMsg.setInstantActions(List.of(cancelAction));
+        cancelMsg.setActions(List.of(cancelAction));
 
         sm.receiveInstantActions(ctx, cancelMsg);
 

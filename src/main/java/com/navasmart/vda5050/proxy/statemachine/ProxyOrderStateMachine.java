@@ -173,7 +173,7 @@ public class ProxyOrderStateMachine {
             manufacturer = ctx.getManufacturer();
             serialNumber = ctx.getSerialNumber();
             vehicleId = ctx.getVehicleId();
-            for (Action action : instantActions.getInstantActions()) {
+            for (Action action : instantActions.getActions()) {
                 InstantActionResult result = processInstantAction(ctx, action);
                 if (result.deferredCallback != null) {
                     switch (result.deferredCallback) {
