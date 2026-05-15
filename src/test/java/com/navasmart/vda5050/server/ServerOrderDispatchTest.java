@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navasmart.vda5050.autoconfigure.Vda5050AutoConfiguration;
 import com.navasmart.vda5050.autoconfigure.Vda5050ServerAutoConfiguration;
 import com.navasmart.vda5050.model.*;
+import com.navasmart.vda5050.model.Order;
 import com.navasmart.vda5050.server.callback.SendResult;
 import com.navasmart.vda5050.server.callback.Vda5050ServerAdapter;
 import com.navasmart.vda5050.server.dispatch.InstantActionSender;

@@ -16,7 +16,7 @@ import com.navasmart.vda5050.mqtt.MqttGateway;
 import com.navasmart.vda5050.proxy.callback.Vda5050ProxyStateProvider;
 import com.navasmart.vda5050.proxy.callback.Vda5050ProxyVehicleAdapter;
 import com.navasmart.vda5050.proxy.validation.OrderValidator;
-import com.navasmart.vda5050.event.OrderReceivedEvent;
+import com.navasmart.vda5050.event.vda5050.OrderReceivedEvent;
 import com.navasmart.vda5050.vehicle.VehicleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
